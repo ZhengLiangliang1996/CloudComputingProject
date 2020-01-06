@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title><%= title %></title>
+    <script src="/javascripts/jquery.min.js"></script>
+    <script src="/javascripts/semantic.min.js"></script>
+    <script src="/javascripts/wordcloud2.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/6.3.2/rxjs.umd.js"></script>
+    <link rel="shortcut icon" href="/images/dt.jpg" type="image/x-icon">
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <link href="/stylesheets/semantic.min.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js"></script>
+    <script type="module">
+
+      const {
+                Observable,
+                Subject,
+                ReplaySubject,
+                from,
+                of ,
+                range, 
+                fromEvent,
+                timer,
+        } = rxjs;
+
+        const {
+                map,
+                filter,
+                switchMap,
+                scan,
+                groupBy
+        } = rxjs.operators;
+
+        const tweetsObject = new Subject();
+        var socket = io.connect('http://localhost:3000');
+        
+        socket.on('tweet', (data) =>{
+          tweetsObject.next(data);
+        })
+
+        function start(){
+          pushData(tweetsObject);
+        }
+        
+        var gdata = [];
+        function pushData(observable){
+            observable.pipe(
+                groupBy(tweet =>{ return tweet.text[1]}),
+            ).subscribe(t =>{
+                t.pipe(scan( (acc, curr)=>{acc.push(parseInt(curr.text[1])); return acc;}, [])).subscribe(v =>{
+                  gdata.push(v);
+                  gdata.flat(); 
+                  console.log(gdata);
+                  updatechart(gdata);
+                });
+            })
+        }
+        
+        function updatechart(datatweet){
+          var data = {
+          datasets: [{
+            data: datatweet,
+            label: "Liked",
+            backgroundColor: "rgba(255, 99, 132,0.4)",
+            borderColor: "rgba(255, 99, 132,1)"
+          }, {
+            data: [],
+            label: "Retweets",
+            backgroundColor: "rgba(151,205,187,0.4)",
+            borderColor: "rgba(151,205,187,1)"
+          }]
+        };
+          var ctx = document.getElementById("trumpLikechart")
+
+            var chart = new Chart(ctx, {
+              type: 'line',
+              data: data,
+              options: {
+                responsive: true,
+                title:{
+                  display:true,
+                  text:'Tweet popularity of Donald Trump'
+                },
+                tooltips: {
+                  mode: 'index',
+                  intersect: false,
+                },
+                hover: {
+                  mode: 'nearest',
+                  intersect: true
+                },
+                scales: {
+                  xAxes: [{
+                    display: true,
+                    scaleLabel: {
+                      display: true,
+                      labelString: 'Timeline of tweets'
+                    }
+                  }],
+                  yAxes: [{
+                    display: true,
+                    scaleLabel: {
+                      display: true,
+                      labelString: 'Count for liked and retweeted tweets'
+                    }
+                  }]
+                }
+              }
+            });
+        }
+        
+        document.addEventListener('DOMContentLoaded', start);
+
+    </script>
+</head>
+
+<body>
+    <div class="ui fixed inverted menu">
+      <div class="ui container">
+        <a href="/" class="header item">
+          <img class="logo" src="/images/hair.jpg">
+          @realDonaldTrump
+        </a>
+        <a href="#" class="item">Home</a>
+        <div class="ui simple dropdown item">
+          Other Tacking Mode <i class="dropdown icon"></i>
+          <div class="menu">
+            <a class="item" href="#">Link Item</a>
+            <a class="item" href="#">Link Item</a>
+            <div class="divider"></div>
+            <div class="header">Header Item</div>
+            <div class="item">
+              <i class="dropdown icon"></i>
+              Sub Menu
+              <div class="menu">
+                <a class="item" href="#">Link Item</a>
+                <a class="item" href="#">Link Item</a>
+              </div>
+            </div>
+            <a class="item" href="#">Link Item</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="ui main text container">
+      <h1 class="ui header">Donald Trump Twitter Popularity Track</h1>
+      <p>This is a basic fixed menu template using fixed size containers.</p>
+      <p>A text container is used for the main container, which is useful for single column layouts</p>
+      <!-- <img class="wireframe" src="images/trumpTwitter.png"> -->
+        
+      
+      <!-- <div class="ui segment" style="height:550px; width:600px;">  -->
+          <canvas id="trumpLikechart">
+          </canvas>
+      <!-- </div> -->
+    </div>
+    
+  
+</body>
+
+</html>

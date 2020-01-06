@@ -12,7 +12,10 @@
     "express": "~4.16.1",
     "http-errors": "~1.6.3",
     "morgan": "~1.9.1",
+    "papaparse": "^5.1.1",
     "rxjs": "^6.5.4",
-    "twitter": "^1.7.1"
+    "socket.io": "^2.3.0",
+    "twitter": "^1.7.1",
+    "wordcloud": "^1.1.1"
   }
 }

@@ -18,15 +18,11 @@ router.get('/', function(req, res, next) {
   T.get('trends/place', params, function(err, data, response) {
       if (!err){
         var tweets = data;
-        res.render('index', { title: 'Twitter Popularity Tracking', trends:tweets[0].trends})
-        // res.locals = {url:'index', trends: tweets[0].trends};
-        // res.send(tweets[0].trends);
+        res.render('index', { title: 'Twitter Popularity Tracking', trends:tweets});
       } else {
           console.log(err);
       }
   });
-
-  
 });
 
 module.exports = router;

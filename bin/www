@@ -7,6 +7,11 @@
 var app = require('../app');
 var debug = require('debug')('cloudcomputing:server');
 var http = require('http');
+const fs = require("fs");
+const {
+  parse
+} = require("papaparse");
+
 
 /**
  * Get port from environment and store in Express.
@@ -20,6 +25,49 @@ app.set('port', port);
  */
 
 var server = http.createServer(app);
+
+// add Manually
+//controller for emit
+var io = require('socket.io')(server);
+const file = './tweets.csv'
+let tweetsList = undefined;
+
+readFile(file);
+
+// these 2 function is inspired from cloud computing exercise session 4: Author: Angel
+function readFile(file) {
+  return parse(fs.readFileSync(file, 'utf8'), {
+      complete: function (results, file) {
+          console.log('Loading tweets');
+          tweetsList = results.data;
+      }
+  })
+}
+
+io.on('connection', function(socket) {
+  const tweet = (t) => {
+    socket.emit('tweet', {
+      text:t
+    })
+  }
+
+  // recursively get the data 
+  function loop(loopstep){
+    if(loopstep > 0) {
+      var cb = () => {
+        return () => {
+          if (tweetsList) {
+            loopstep--;
+            tweet(tweetsList[loopstep]);
+          }
+          loop(loopstep);
+        }
+      } 
+      setTimeout(cb(), 2 * Math.random() * 1000);
+    }
+  }
+  loop(300, tweet);
+});
 
 /**
  * Listen on provided port, on all network interfaces.

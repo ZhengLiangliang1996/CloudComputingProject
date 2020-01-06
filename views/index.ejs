@@ -5,9 +5,10 @@
     <title><%= title %></title>
     <script src="/javascripts/jquery.min.js"></script>
     <script src="/javascripts/semantic.min.js"></script>
+    <script src="/javascripts/wordcloud2.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/6.3.2/rxjs.umd.js"></script>
     <link rel="shortcut icon" href="/images/dt.jpg" type="image/x-icon">
-    <link rel="stylesheet" href="/public/stylesheets/styles.css">
+    <link rel="stylesheet" href="/stylesheets/styles.css">
     <link href="/stylesheets/semantic.min.css" rel="stylesheet" type="text/css">
     <script type="module">
         
@@ -32,30 +33,57 @@
                 groupBy
         } = rxjs.operators;
 
-
         function start(){
-            
-            //console.log("1");
-            // console.log(twees);
             var trends = <%- JSON.stringify(trends)%>;
-            console.log(trends);
             trends = from(trends[0].trends);
             trendCloud(trends);
+            registrationButtonObservable();
         }
                 
+        // 搜索框得到id的值进行rxjs 的及时更替
+        // click button and update cloud 
+        function registrationButtonObservable() {
+          const btn = document.querySelector('#wordCloudButton')
+          fromEvent(btn, 'click').subscribe(
+            (e) => {
+              var trends = <%- JSON.stringify(trends)%>;
+              trends = from(trends[0].trends);
+              trendCloud(trends);
+            }
+          )
+        }
+
         // Data from twiiter API trends
         function trendCloud(observable){
-                  // timer(0, 500).subscribe(
+            var result = [];
+            var i = 60;
             observable.pipe(
-                map(({name}) => name)
-            ).subscribe(val => console.log(val));
+                map(element => {
+                  return [element['name'], i--]
+                })).subscribe( 
+                  data => result.push(data)
+                );
+            wordCloudDraw(result);
         }
+
+        // specify the id of region
+        // function specifyID(observable){
+        //   let component = document.getElementById('worldid')
+        //   let KeyObs = fromEvent(component, 'keypress');
+        //   KeyObs.pipe(
+
+        //   )
+        // }
+
+        // Draw WordCloud 
+        function wordCloudDraw(wordlist){
+          WordCloud(document.getElementById('cloud'), {list:wordlist}, {shape:'cardioid'})
+        }
+
+
 
         document.addEventListener('DOMContentLoaded', start);
 
-        // 搜索框得到id的值进行rxjs 的及时更替
-
-        //merge ?? 哪些
     </script>
 </head>
 
@@ -70,7 +98,7 @@
         <div class="ui simple dropdown item">
           Other Tacking Mode <i class="dropdown icon"></i>
           <div class="menu">
-            <a class="item" href="#">Link Item</a>
+            <a class="item" href="/graph">TrumpTwitterAnalysis</a>
             <a class="item" href="#">Link Item</a>
             <div class="divider"></div>
             <div class="header">Header Item</div>
@@ -93,72 +121,28 @@
       <p>This is a basic fixed menu template using fixed size containers.</p>
       <p>A text container is used for the main container, which is useful for single column layouts</p>
       <!-- <img class="wireframe" src="images/trumpTwitter.png"> -->
-      
-        <div align="left" style="float:left">
-          <button class="ui primary button" id="wordCloudButton">
+
+      <div class="ui search" style="float:left">
+          <div class="ui icon input">
+            <input class="prompt" type="text" placeholder="world ID: default is 1" id="worldid">
+          </div>
+      </div>
+         <div align="center">
+          <button class="ui primary button" id="wordCloudButton"">
             Trends Search Now
           </button>
-        </div>
-        <div class="ui search" align="center">
-            <div class="ui icon input">
-              <input class="prompt" type="text" placeholder="world ID: default is 1">
-            </div>
-        </div>
+         </div> 
+        
       
-
-      <div class="ui segment">
-          <div class="cloud" id="cloud">
+      <div class="ui segment" style="height:550px; width:600px;"> 
+          <div class="cloud" id="cloud" style="height:500px; width:400px;margin-left: 100px;">
+            placeholder
+          </div>
+                
       </div>
     </div>
-    </div>
+    
   
-
-    <!-- Footer -->
-    <div class="ui inverted vertical footer segment">
-      <div class="ui center aligned container">
-        <div class="ui stackable inverted divided grid">
-          <div class="three wide column">
-            <h4 class="ui inverted header">Group 1</h4>
-            <div class="ui inverted link list">
-              <a href="#" class="item">Link One</a>
-              <a href="#" class="item">Link Two</a>
-              <a href="#" class="item">Link Three</a>
-              <a href="#" class="item">Link Four</a>
-            </div>
-          </div>
-          <div class="three wide column">
-            <h4 class="ui inverted header">Group 2</h4>
-            <div class="ui inverted link list">
-              <a href="#" class="item">Link One</a>
-              <a href="#" class="item">Link Two</a>
-              <a href="#" class="item">Link Three</a>
-              <a href="#" class="item">Link Four</a>
-            </div>
-          </div>
-          <div class="three wide column">
-            <h4 class="ui inverted header">Group 3</h4>
-            <div class="ui inverted link list">
-              <a href="#" class="item">Link One</a>
-              <a href="#" class="item">Link Two</a>
-              <a href="#" class="item">Link Three</a>
-              <a href="#" class="item">Link Four</a>
-            </div>
-          </div>
-          <div class="seven wide column">
-            <h4 class="ui inverted header">Footer Header</h4>
-            <p>Extra space for a call to action inside the footer that could help re-engage users.</p>
-          </div>
-        </div>
-        <div class="ui inverted section divider"></div>
-        <img src="assets/images/logo.png" class="ui centered mini image">
-        <div class="ui horizontal inverted small divided link list">
-          <a class="item" href="#">Site Map</a>
-          <a class="item" href="#">Contact Us</a>
-          <a class="item" href="#">Terms and Conditions</a>
-          <a class="item" href="#">Privacy Policy</a>
-        </div>
-      </div>
-    </div>
 </body>
 
 </html>
