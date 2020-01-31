@@ -2,7 +2,9 @@
 
 A twitter popularity tracking add in RxJS, there are three modes in this tracking webApp:
 #### Word-wide twitter trending word cloud
+![](wordcloud.png) 
 #### Trump's tweets counting
+![](chart.png) 
 #### Trump's tweets searching
 
 ## Getting Started
