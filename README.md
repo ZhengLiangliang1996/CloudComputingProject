@@ -1,0 +1,3 @@
+## CloudComputingProject
+#### starting the project in this dir by using npm start
+#### and go to http://localhost:3000/
