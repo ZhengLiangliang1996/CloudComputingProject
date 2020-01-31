@@ -40,7 +40,6 @@
             registrationButtonObservable();
         }
                 
-        // 搜索框得到id的值进行rxjs 的及时更替
         // click button and update cloud 
         function registrationButtonObservable() {
           const btn = document.querySelector('#wordCloudButton')
@@ -66,21 +65,10 @@
             wordCloudDraw(result);
         }
 
-        // specify the id of region
-        // function specifyID(observable){
-        //   let component = document.getElementById('worldid')
-        //   let KeyObs = fromEvent(component, 'keypress');
-        //   KeyObs.pipe(
-
-        //   )
-        // }
-
         // Draw WordCloud 
         function wordCloudDraw(wordlist){
           WordCloud(document.getElementById('cloud'), {list:wordlist}, {shape:'cardioid'})
         }
-
-
 
         document.addEventListener('DOMContentLoaded', start);
 
@@ -98,26 +86,18 @@
         <div class="ui simple dropdown item">
           Other Tacking Mode <i class="dropdown icon"></i>
           <div class="menu">
-            <a class="item" href="/graph">TrumpTwitterAnalysis</a>
-            <a class="item" href="#">Link Item</a>
+            <a class="item" href="/graph">Trump Twitter Tracking</a>
+            
             <div class="divider"></div>
-            <div class="header">Header Item</div>
-            <div class="item">
-              <i class="dropdown icon"></i>
-              Sub Menu
-              <div class="menu">
-                <a class="item" href="#">Link Item</a>
-                <a class="item" href="#">Link Item</a>
-              </div>
+            <a class="item" href="/geo">Twitter Geo-Popularity Trakcing</a>
             </div>
-            <a class="item" href="#">Link Item</a>
           </div>
         </div>
       </div>
     </div>
   
     <div class="ui main text container">
-      <h1 class="ui header">Donald Trump Twitter Popularity Track</h1>
+      <h1 class="ui header">Twitter Popularity Track</h1>
       <p>This is a basic fixed menu template using fixed size containers.</p>
       <p>A text container is used for the main container, which is useful for single column layouts</p>
       <!-- <img class="wireframe" src="images/trumpTwitter.png"> -->

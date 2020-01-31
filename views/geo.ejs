@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title><%= title %></title>
+    <script src="/javascripts/jquery.min.js"></script>
+    <script src="/javascripts/semantic.min.js"></script>
+    <script src="/javascripts/wordcloud2.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/rxjs/6.3.2/rxjs.umd.js"></script>
+    <link rel="shortcut icon" href="/images/dt.jpg" type="image/x-icon">
+    <link rel="stylesheet" href="/stylesheets/styles.css">
+    <link href="/stylesheets/semantic.min.css" rel="stylesheet" type="text/css">
+    <link href="/stylesheets/tweets.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.6.0/Chart.bundle.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/lodash/4.17.4/lodash.min.js"></script>
+    <script type="module">
+
+      const {
+                Observable,
+                Subject,
+                ReplaySubject,
+                from,
+                of ,
+                range, 
+                fromEvent,
+                timer,
+        } = rxjs;
+
+        const {
+                map,
+                filter,
+                switchMap,
+                scan,
+                groupBy
+        } = rxjs.operators;
+
+        const tweetsObject = new Subject();
+        var socket = io.connect('http://localhost:3000');
+        
+        socket.on('tweet', (data) =>{
+          tweetsObject.next(data);
+        })
+
+        function start(){
+          searchHashtag(tweetsObject);
+        }
+
+
+        function updateTweet(id, tweet){
+            let span = document.createElement('div');
+            span.textContent = tweet;
+            span.setAttribute("style",`font-size:${defaultSize}px`);
+            span.setAttribute("class", `ui top attached button`);
+            span.setAttribute("id",id);
+
+            document.getElementById("tweetAll").appendChild(span);
+        }
+
+        var defaultSize = 15;
+
+        //删除时候进行清空
+        function cleanSegment(){
+        
+            document.getElementById("tweetAll").innerHTML = "";
+               
+        }
+
+        function stringProcess(str_tweet){
+            var a = "";
+            a = str_tweet.replace(/https.*'/g, '');
+            a = a.replace(/\\xe2\\x80\\x99/g, "\'")
+            
+            return a;
+        }
+
+        function searchHashtag(observable){
+            let geo = document.getElementById('geoQuery');
+            let keyObs = fromEvent(geo, 'keypress');
+            console.log(geo.value);
+            if (geo.value === '0'){
+                cleanSegment();
+            }else{
+                var i = 0;
+                var str_tweet = "";
+                keyObs.pipe(
+                switchMap(() => { 
+                    return observable.pipe(filter( tweet => tweet.text[0].includes(geo.value) ) ) })
+                ).subscribe(t =>
+                    {
+                        i++;
+                        str_tweet = stringProcess(t.text[0].substring(2));
+                        updateTweet(i, str_tweet);
+                    }
+                )   
+            }
+        }
+        
+        // 
+
+        document.addEventListener('DOMContentLoaded', start);
+
+    </script>
+</head>
+
+<body>
+    <div class="ui fixed inverted menu">
+      <div class="ui container">
+        <a href="/" class="header item">
+          <img class="logo" src="/images/hair.jpg">
+          @realDonaldTrump
+        </a>
+        <a href="#" class="item">Home</a>
+        <div class="ui simple dropdown item">
+          Other Tacking Mode <i class="dropdown icon"></i>
+          <div class="menu">
+            <a class="item" href="/graph">Trump Twitter Tracking</a>
+            
+            <div class="divider"></div>
+            <a class="item" href="/geo">Twitter Geo Popular Tweets Search</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  
+    <div class="ui main text container">
+      <h1 class="ui header">Trump tweets Search</h1>
+      <p>This is a basic fixed menu template using fixed size containers.</p>
+      <p>A text container is used for the main container, which is useful for single column layouts</p>
+
+      <div class="ui search" style="float:left">
+            <div class="ui icon input">
+            <input class="prompt" type="text" placeholder="Serch Recent Tweets by Geo-location" id="geoQuery">
+            </div>
+      </div>
+
+      <div align="center">
+            <button class="ui primary button" id="wordCloudButton"">
+              Search Now
+            </button>
+      </div> 
+
+      <div class="ui segment"" id="tweetAll"> 
+      
+      </div>
+
+    </div>
+  
+</body>
+
+</html>

@@ -29,7 +29,7 @@ var server = http.createServer(app);
 // add Manually
 //controller for emit
 var io = require('socket.io')(server);
-const file = './tweets.csv'
+const file = './trump_tweets.csv'
 let tweetsList = undefined;
 
 readFile(file);
@@ -63,7 +63,7 @@ io.on('connection', function(socket) {
           loop(loopstep);
         }
       } 
-      setTimeout(cb(), 2 * Math.random() * 1000);
+      setTimeout(cb(), 2 * 1000);
     }
   }
   loop(300, tweet);
